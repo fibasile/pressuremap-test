@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+        <title>Pressure Map Test</title>
+        <style type="text/css" media="screen">
+        body {
+            font-family: Helvetica,sans-serif;
+            font-size: 12px;
+        }
+        #pressuremap {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            width: 600px;
+            height: 800px;
+            border: 1px solid #dedede;
+        }
+        #controls {
+            position: absolute;
+            top: 50px;
+            left: 750px;
+            width: 300px;
+            border: 1px solid #dedede;
+            padding: 12px;
+            
+        }
+        #imagePreview {
+            position: absolute;
+            top: 250px;
+            left: 750px;
+            width: 300px;
+            border: 1px solid #dedede;
+            padding: 12px;
+        }
+        
+        a, a:visited, a:hover {
+            display: block;
+            color: black;
+            padding: 4px;
+            border: 1px solid #dedede;
+            background: #ffcc00;
+            text-decoration: none;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        label {
+            
+            margin-right: 10px;
+            
+        }
+        input {
+            
+        }
+        </style>
+    </head>
+    <body id="index" onload="">
+        
+        <div id="pressuremap">
+            
+            
+            
+        </div>
+        
+        <div id="imagePreview">
+            <small>PNG Preview</small>
+            
+            <img id="imagePreviewThumb" width="300" src="http://placehold.it/300x400">
+            <a href="#" id="savePngBtn">Save png</a>
+        </div>
+        
+        
+        <div id="controls">
+
+        <label for="point_x">X</label><input type="text" name="" value="0" id="point_x"> <small>Coordinates</small><br/>
+        <label for="point_y">Y</label><input type="text" name="" value="0" id="point_y"><br/>
+        <label for="point_v">V</label><input type="text" name="" value="5" id="point_v"> <small>Intensity 0-5</small><br/>
+        
+        
+        
+        <br/>
+
+        <a href="#" id="addPointBtn">Add point</a>
+
+
+        </div>
+        
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+        <script src="https://github.com/pa7/heatmap.js/raw/master/build/heatmap.min.js" type="text/javascript"></script>
+        <script type="text/javascript">
+        
+            $(document).ready(function(){
+                var dataArray = new Array();
+                point_x_el = $('#point_x');
+                point_y_el = $('#point_y');
+                point_v_el = $('#point_v');
+                
+                
+               // do stuff
+                var heatmap = h337.create({
+                  container: $('#pressuremap')[0]
+                });
+                
+                var heatmapCanvas = $('.heatmap-canvas')[0];
+
+              
+                dataArray.push({ x: 120, y: 225, value: 5});
+                dataArray.push({ x: 140, y: 235, value: 5});
+                dataArray.push({ x: 140, y: 265, value: 5});
+                dataArray.push({ x: 140, y: 135, value: 5});
+                
+                
+                heatmap.setData({
+                  max: 5,
+                  data: dataArray
+                });
+                
+                
+                var addPoint = function(e){
+                    
+                    console.log("Clicked");
+                    e.preventDefault();
+                    
+                    var point_x = point_x_el.val();
+                    var point_y = point_y_el.val();
+                    var point_v = point_v_el.val();
+                    
+                    console.log(" x = " + point_x + " y= " + point_y + " v= " + point_v );
+                    
+                    dataArray.push( {
+                        x: point_x,
+                        y: point_y,
+                        value: point_v
+                    });
+                    heatmap.setData({
+                      max: 5,
+                      data: dataArray
+                    });
+                
+                    updatePreview();
+                
+                };
+                
+                
+                
+                
+                $('#addPointBtn').click(addPoint);
+                
+                
+                var updatePreview = function(e){
+                    if (e) e.preventDefault();
+                    
+                    
+                    var canvas = heatmapCanvas;
+                    
+                    var context = canvas.getContext("2d");
+                    context.fillStyle = "lightgray";
+                    context.font = "bold 16px Helvetica";
+                    context.fillText("Pressure map by Solemaker.io", 20, 780);
+                     
+                     
+                    // save canvas image as data url (png format by default)
+                    var dataURL = canvas.toDataURL();
+
+                    // set canvasImg image src to dataURL
+                    // so it can be saved as an image
+                    document.getElementById('imagePreviewThumb').src = dataURL;
+                    
+                }
+                
+                function downloadURI(uri, name) {
+                  var link = document.createElement("a");
+                  link.download = name;
+                  link.href = uri;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  delete link;
+                }
+                
+                var dlCanvas = function() {
+                    var canvas = heatmapCanvas;
+                    // save canvas image as data url (png format by default)
+                    var dataURL = canvas.toDataURL();
+                    
+                    
+                    downloadURI(dataURL, "pressuremap.jpg");
+                };
+                
+                $('#savePngBtn').click(function(e){
+                    console.log("click");
+                    // updatePreview(e);
+                    dlCanvas();
+                });
+                
+                updatePreview();
+
+            });
+            
+        </script>
+        
+    </body>
+    
+</html>
